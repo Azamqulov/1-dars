@@ -1,0 +1,106 @@
+
+
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Recognition JS</title>
+</head>
+<body>
+    <h1>Yuzni skaner qilish</h1>
+
+    <!-- Foydalanuvchi o‘zining rasmni yuklashi -->
+    <input type="file" id="uploadImage" accept="image/*">
+    <p>Yuklangan rasm:</p>
+    <img id="userImage" style="width: 200px; display: none;">
+
+    <!-- Kamera -->
+    <video id="video" width="640" height="480" autoplay></video>
+    <button id="capture">Skaner qilish</button>
+
+    <!-- Natija -->
+    <p id="result"></p>
+
+    <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.min.js"></script>
+    <script>
+        const video = document.getElementById("video");
+        const uploadImage = document.getElementById("uploadImage");
+        const userImage = document.getElementById("userImage");
+        const captureButton = document.getElementById("capture");
+        const result = document.getElementById("result");
+
+        let userDescriptor = null; // Yuklangan rasmning yuz identifikatori
+
+        // 📌 Face-api kutubxonasini yuklash
+        async function loadModels() {
+            await faceapi.nets.ssdMobilenetv1.loadFromUri("https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/");
+            await faceapi.nets.faceLandmark68Net.loadFromUri("https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/");
+            await faceapi.nets.faceRecognitionNet.loadFromUri("https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/");
+            startCamera();
+        }
+
+        // 📌 Kamerani ishga tushirish
+        function startCamera() {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => video.srcObject = stream)
+                .catch(err => console.error("Kamera ishlamayapti:", err));
+        }
+
+        // 📌 Foydalanuvchi yuklagan rasmni o'qish
+        uploadImage.addEventListener("change", async (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async function (e) {
+                userImage.src = e.target.result;
+                userImage.style.display = "block";
+
+                const img = await faceapi.bufferToImage(file);
+                const detection = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor();
+                if (detection) {
+                    userDescriptor = detection.descriptor;
+                    result.innerText = "Rasm muvaffaqiyatli yuklandi!";
+                    result.style.color = "green";
+                } else {
+                    result.innerText = "Yuz topilmadi!";
+                    result.style.color = "red";
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // 📌 Kameradan rasm olib solishtirish
+        captureButton.addEventListener("click", async () => {
+            if (!userDescriptor) {
+                result.innerText = "Iltimos, avval rasm yuklang!";
+                result.style.color = "red";
+                return;
+            }
+
+            const detection = await faceapi.detectSingleFace(video).withFaceLandmarks().withFaceDescriptor();
+            if (!detection) {
+                result.innerText = "Yuz topilmadi!";
+                result.style.color = "red";
+                return;
+            }
+
+            // 📌 Foydalanuvchi rasm va kameradan olingan tasvirni taqqoslash
+            const distance = faceapi.euclideanDistance(userDescriptor, detection.descriptor);
+            console.log("Face distance:", distance);
+
+            if (distance < 0.6) {
+                result.innerText = "✅ Yashil signal - Moslik bor!";
+                result.style.color = "green";
+            } else {
+                result.innerText = "❌ Qizil signal - Moslik yo‘q!";
+                result.style.color = "red";
+            }
+        });
+
+        // Modelni yuklash
+        loadModels();
+    </script>
+</body>
+</html>
