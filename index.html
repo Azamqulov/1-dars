@@ -7,6 +7,81 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Face Recognition JS</title>
 </head>
+    <style>
+
+    /* Umumiy stillar */
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
+}
+
+/* Sarlavha */
+h1 {
+    color: #333;
+}
+
+/* Foydalanuvchi rasm yuklash qismi */
+input[type="file"] {
+    margin: 10px 0;
+    padding: 10px;
+    border: 2px solid #007bff;
+    border-radius: 5px;
+    background: white;
+    cursor: pointer;
+}
+
+#userImage {
+    width: 200px;
+    height: auto;
+    border-radius: 10px;
+    margin: 10px 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Kamera va tugmalar */
+video {
+    display: block;
+    margin: 20px auto;
+    border-radius: 10px;
+    border: 3px solid #007bff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+button {
+    padding: 10px 15px;
+    font-size: 16px;
+    color: white;
+    background: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+button:hover {
+    background: #0056b3;
+}
+
+/* Natija xabari */
+#result {
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+/* Moslik bo‘lsa yashil, aks holda qizil */
+#result.success {
+    color: green;
+}
+
+#result.error {
+    color: red;
+}
+
+</style>
 <body>
     <h1>Yuzni skaner qilish</h1>
 
